@@ -17,20 +17,34 @@ class DataPasienPage extends Component
     public $tanggal_lahir;
     public $no_hp;
     public $alamat;
+    public $editMode = false;
+    public $pasienId;
 
     public function mount()
     {
         $this->pasiens = Pasien::with('pendaftaran')->orderBy('id', 'desc')->get();
     }
 
-    protected $rules = [
-        'nik' => ['required', 'string', 'size:16', 'unique:pasien,nik'],
-        'nama' => ['required', 'string', 'max:255'],
-        'jenis_kelamin' => ['required', 'in:l,p'],
-        'tanggal_lahir' => ['required', 'date', 'before:today'],
-        'no_hp' => ['required', 'string', 'max:15', 'regex:/^(\+62|0)[0-9]{9,12}$/'],
-        'alamat' => ['required', 'string', 'max:500'],
-    ];
+    protected function rules()
+    {
+        $rules = [
+            'nik' => ['required', 'string', 'size:16'],
+            'nama' => ['required', 'string', 'max:255'],
+            'jenis_kelamin' => ['required', 'in:l,p'],
+            'tanggal_lahir' => ['required', 'date', 'before:today'],
+            'no_hp' => ['required', 'string', 'max:15', 'regex:/^(\+62|0)[0-9]{9,12}$/'],
+            'alamat' => ['required', 'string', 'max:500'],
+        ];
+
+        // Tambahkan aturan unik untuk NIK, kecuali saat edit pasien yang sama
+        if (!$this->editMode) {
+            $rules['nik'][] = 'unique:pasien,nik';
+        } else {
+            $rules['nik'][] = 'unique:pasien,nik,' . $this->pasienId;
+        }
+
+        return $rules;
+    }
 
     protected $messages = [
         'nik.required' => 'NIK wajib diisi.',
@@ -77,7 +91,7 @@ class DataPasienPage extends Component
             DB::commit();
 
             // Reset form
-            $this->reset(['nik', 'nama', 'jenis_kelamin', 'tanggal_lahir', 'no_hp', 'alamat']);
+            $this->resetForm();
 
             // Muat ulang data pasien
             $this->pasiens = Pasien::with('pendaftaran')->orderBy('id', 'desc')->get();
@@ -87,6 +101,61 @@ class DataPasienPage extends Component
             DB::rollBack();
             session()->flash('error', 'Gagal menambahkan pasien: ' . $e->getMessage());
         }
+    }
+
+    public function editPasien($id)
+    {
+        $pasien = Pasien::findOrFail($id);
+        $this->pasienId = $id;
+        $this->nik = $pasien->nik;
+        $this->nama = $pasien->nama;
+        $this->jenis_kelamin = $pasien->jenis_kelamin;
+        $this->tanggal_lahir = $pasien->tanggal_lahir;
+        $this->no_hp = $pasien->no_hp;
+        $this->alamat = $pasien->alamat;
+        $this->editMode = true;
+    }
+
+    public function updatePasien()
+    {
+        $this->validate();
+
+        try {
+            DB::beginTransaction();
+
+            $pasien = Pasien::findOrFail($this->pasienId);
+            $pasien->update([
+                'nik' => $this->nik,
+                'nama' => $this->nama,
+                'jenis_kelamin' => $this->jenis_kelamin,
+                'tanggal_lahir' => $this->tanggal_lahir,
+                'no_hp' => $this->no_hp,
+                'alamat' => $this->alamat,
+            ]);
+
+            DB::commit();
+
+            // Reset form
+            $this->resetForm();
+
+            // Muat ulang data pasien
+            $this->pasiens = Pasien::with('pendaftaran')->orderBy('id', 'desc')->get();
+
+            session()->flash('success', 'Pasien berhasil diperbarui!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            session()->flash('error', 'Gagal memperbarui pasien: ' . $e->getMessage());
+        }
+    }
+
+    public function batalEdit()
+    {
+        $this->resetForm();
+    }
+
+    public function resetForm()
+    {
+        $this->reset(['nik', 'nama', 'jenis_kelamin', 'tanggal_lahir', 'no_hp', 'alamat', 'editMode', 'pasienId']);
     }
 
     public function render()

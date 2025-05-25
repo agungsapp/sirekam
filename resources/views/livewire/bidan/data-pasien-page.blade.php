@@ -20,10 +20,10 @@
 				<!-- Form Input Pasien -->
 				<div class="card">
 						<div class="card-header">
-								<h4 class="card-title">Tambah Pasien</h4>
+								<h4 class="card-title">{{ $editMode ? 'Edit Pasien' : 'Tambah Pasien' }}</h4>
 						</div>
 						<div class="card-body">
-								<form wire:submit.prevent="simpanPasien">
+								<form wire:submit.prevent="{{ $editMode ? 'updatePasien' : 'simpanPasien' }}">
 										<div class="row">
 												<div class="col-md-6">
 														<div class="form-group">
@@ -103,7 +103,11 @@
 																<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 														</div>
 												@endif
-												<button type="submit" class="btn btn-primary">Simpan Pasien</button>
+												<button type="submit"
+														class="btn btn-primary">{{ $editMode ? 'Simpan Perubahan' : 'Simpan Pasien' }}</button>
+												@if ($editMode)
+														<button type="button" wire:click="batalEdit" class="btn btn-secondary">Batal</button>
+												@endif
 										</div>
 								</form>
 						</div>
@@ -148,6 +152,8 @@
 																						<td>
 																								<a href="{{ route('bidan.detail-pasien', $p->id) }}" class="btn btn-info"><i
 																												class="bi bi-info-lg"></i></a>
+																								<button wire:click="editPasien({{ $p->id }})" class="btn btn-warning"><i
+																												class="bi bi-pencil-square"></i></button>
 																						</td>
 																				</tr>
 																		@empty
