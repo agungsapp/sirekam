@@ -90,7 +90,7 @@
 														<i class="fa-solid fa-vial-circle-check"></i>
 														<div>
 																<h5>Pelayanan Profesional</h5>
-																<p>Tim bidan dan dokter kami berpengalaman, siap memberikan perawatan dengan penuh perhatian.</p>
+																<p>Tim bidan kami berpengalaman, siap memberikan perawatan dengan penuh perhatian.</p>
 														</div>
 												</li>
 												<li>
@@ -148,7 +148,8 @@
 																<div class="col-lg-12 details order-lg-1 order-2">
 																		<h3>Pemeriksaan Kehamilan</h3>
 																		<p class="fst-italic">Kami menyediakan pemeriksaan rutin untuk memastikan kesehatan ibu dan janin.</p>
-																		<p>Pemeriksaan meliputi USG, pemantauan detak jantung janin, dan konsultasi dengan bidan berpengalaman
+																		<p>Pemeriksaan meliputi, pemantauan rutin kesahatan ibu dan janin, dan konsultasi dengan bidan
+																				berpengalaman
 																				untuk mendukung kehamilan yang sehat.</p>
 																</div>
 
