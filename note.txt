@@ -1,0 +1,12 @@
+whats next : 
+- fitur history pasien.
+- fitur history berobat.
+- perbaikan halaman depan. 
+
+
+update terakhir : 
+- relasi di ubah 
+pendaftaran -> awal
+pendaftaran -> lanjut
+
+- history pasien
