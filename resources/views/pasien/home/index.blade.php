@@ -622,6 +622,49 @@
 
 		</section><!-- /Gallery Section -->
 
+
+		{{-- section antrian --}}
+		{{-- Section Antrian --}}
+		<section id="antrian" class="appointment section">
+				<div class="section-title container" data-aos="fade-up">
+						<h2>Antrian Berjalan Saat Ini </h2>
+						<p>Berikut adalah daftar antrian pasien secara real-time.</p>
+						<p>waktu sekarang : {{ \Carbon\Carbon::now()->translatedFormat('l, j F Y H:i') }} WIB</p>
+				</div>
+
+				<div class="row container mt-4" data-aos="fade-up" data-aos-delay="100">
+						{{-- Left: Currently Being Served --}}
+						<div class="col-md-4 text-center">
+								<h4>Sedang Dilayani:</h4>
+								<div id="sedangDilayani" class="display-4 text-primary">-</div>
+								<div id="sisaWaktu" class="text-muted mt-2">-</div>
+						</div>
+
+						{{-- Right: Queue List --}}
+						<div class="col-md-8">
+								<h5>Daftar Pasien Hari Ini</h5>
+								<div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+										<table class="table-bordered table">
+												<thead>
+														<tr>
+																<th scope="col">No</th>
+																<th scope="col">Nama</th>
+																<th scope="col">Status</th>
+																<th scope="col">Estimasi Dilayani</th>
+														</tr>
+												</thead>
+												<tbody id="tabelAntrian">
+														<tr>
+																<td colspan="4" class="text-center">Memuat data...</td>
+														</tr>
+												</tbody>
+										</table>
+								</div>
+						</div>
+				</div>
+		</section>
+
+
 		<!-- Contact Section -->
 		<section id="lokasi" class="contact section">
 
@@ -646,3 +689,64 @@
 
 		</section><!-- /Contact Section -->
 @endsection
+
+
+@push('js')
+		<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+		<script>
+				async function loadAntrian() {
+						try {
+								const response = await axios.get('/antrian/hari-ini', {
+										headers: {
+												'Accept': 'application/json',
+												'X-Requested-With': 'XMLHttpRequest'
+										}
+								});
+								const res = response.data;
+
+								// Update Currently Being Served
+								const sedangDilayani = document.getElementById('sedangDilayani');
+								const sisaWaktu = document.getElementById('sisaWaktu');
+								if (res.aktif && res.aktif.nama) {
+										sedangDilayani.textContent = `${res.aktif.nama} (#${res.aktif.id})`;
+										sisaWaktu.textContent = res.aktif.sisa_waktu > 0 ?
+												`Sisa waktu: ${res.aktif.sisa_waktu} menit` :
+												'Selesai segera';
+								} else {
+										sedangDilayani.textContent = '-';
+										sisaWaktu.textContent = '-';
+								}
+
+								// Populate Queue Table
+								const tabelAntrian = document.getElementById('tabelAntrian');
+								let isi = '';
+								if (res.list?.length > 0) {
+										res.list.forEach((item, index) => {
+												const aktifClass = (res.aktif && item.id === res.aktif.id) ? 'table-primary fw-bold' : '';
+												isi += `
+                        <tr class="${aktifClass}">
+                            <td>${index + 1}</td>
+                            <td>${item.nama}</td>
+                            <td>${item.status}</td>
+                            <td>${item.estimasi}</td>
+                        </tr>
+                    `;
+										});
+								} else {
+										isi = `<tr><td colspan="4" class="text-center">Belum ada antrian hari ini.</td></tr>`;
+								}
+								tabelAntrian.innerHTML = isi;
+						} catch (error) {
+								console.error('Gagal memuat data:', error);
+								document.getElementById('tabelAntrian').innerHTML =
+										`<tr><td colspan="4" class="text-center text-danger">Gagal memuat data: ${error.message}</td></tr>`;
+						}
+				}
+
+				// Initial load and periodic updates
+				document.addEventListener('DOMContentLoaded', () => {
+						loadAntrian();
+						setInterval(loadAntrian, 5000); // Update every 5 seconds
+				});
+		</script>
+@endpush

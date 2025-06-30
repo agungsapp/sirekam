@@ -64,7 +64,7 @@
 								<a href="/" class="logo d-flex align-items-center me-auto">
 										<!-- Uncomment the line below if you also wish to use an image logo -->
 										<!-- <img src="/img/logo.png" alt=""> -->
-										<h1 class="sitename">Sirekam</h1>
+										<h1 class="sitename">Sirekam {{ Auth::guard('pasien')->check() }}</h1>
 								</a>
 
 								<nav id="navmenu" class="navmenu">
@@ -78,12 +78,31 @@
 												<li><a href="#doctors">Doctors</a></li> --}}
 
 												<li><a href="#gallery">Galeri</a></li>
+												<li><a href="#antrian">Antrian</a></li>
 												<li><a href="#lokasi">Lokasi</a></li>
 										</ul>
 										<i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
 								</nav>
 
-								<a class="cta-btn d-none d-sm-block" href="#pasien-baru">Pendaftaran</a>
+								@if (Auth::guard('pasien')->check())
+										<a class="cta-btn d-none d-sm-block" href="{{ route('logout') }}"
+												onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+												Logout
+										</a>
+
+										<form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+												@csrf
+										</form>
+								@elseif(Auth::guard('web')->check())
+										<a class="cta-btn d-none d-sm-block" href="{{ route('home.index') }}">
+												Dashboard Bidan
+										</a>
+								@else
+										<a class="cta-btn d-none d-sm-block" href="{{ route('login') }}">
+												Login
+										</a>
+								@endif
+
 
 						</div>
 
@@ -145,6 +164,8 @@
 
 		<!-- Main JS File -->
 		<script src="{{ asset('pasien') }}/js/main.js"></script>
+
+		@stack('js')
 
 </body>
 

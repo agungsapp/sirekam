@@ -22,24 +22,49 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(Request $request): RedirectResponse
     {
-        $request->authenticate();
+        $request->validate([
+            'identifier' => 'required',
+            'password' => 'required',
+        ]);
 
-        $request->session()->regenerate();
+        $identifier = $request->identifier;
 
-        return redirect()->intended(route('bidan.dashboard'));
+        if (is_numeric($identifier)) {
+            // Login pasien pakai guard pasien
+            if (Auth::guard('pasien')->attempt(['nik' => $identifier, 'password' => $request->password])) {
+                $request->session()->regenerate();
+                return redirect()->intended('/');
+            }
+        } else {
+            // Login bidan pakai guard default (web)
+            if (Auth::attempt(['email' => $identifier, 'password' => $request->password])) {
+                $request->session()->regenerate();
+                return redirect()->intended('/');
+            }
+        }
+
+        return back()->withErrors([
+            'identifier' => 'Kredensial tidak valid.',
+        ]);
     }
+
+
 
     /**
      * Destroy an authenticated session.
      */
     public function destroy(Request $request): RedirectResponse
     {
-        Auth::guard('web')->logout();
+        // dd("masuk ke logout");
+        if (Auth::guard('pasien')->check()) {
+            Auth::guard('pasien')->logout();
+        } elseif (Auth::guard('web')->check()) {
+            Auth::guard('web')->logout();
+        }
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
         return redirect('/');

@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Pasien extends Model
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class Pasien extends Authenticatable
 {
     public $table = 'pasien';
 
@@ -17,7 +19,8 @@ class Pasien extends Model
         'jenis_kelamin',
         'tanggal_lahir',
         'no_hp',
-        'alamat'
+        'alamat',
+        'password'
     ];
 
     // Accessor untuk mendapatkan umur

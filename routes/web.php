@@ -22,11 +22,20 @@ use App\Livewire\Bidan\PemeriksaanAwalPage;
 use App\Livewire\Bidan\PemeriksaanLanjutPage;
 use App\Livewire\Bidan\ProfilePage;
 use App\Models\PemeriksaanLanjut;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('home.index');
-});
+    if (Auth::guard('pasien')->check()) {
+        return redirect()->to('/home');
+    }
+
+    if (Auth::check()) { // Guard default web = bidan
+        return redirect()->route('bidan.dashboard');
+    }
+
+    return redirect()->route('login');
+})->name('home.index');
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -41,6 +50,9 @@ Route::middleware('auth')->group(function () {
 
 
 Route::prefix('bidan')->name('bidan.')->middleware('auth')->group(function () {
+
+
+
     Route::get('dashboard', DashboardPage::class)->name('dashboard');
     // Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('pendaftar', DataPendaftarPage::class)->name('pendaftar');
@@ -70,6 +82,12 @@ Route::resource('pasien-lama', PasienLamaController::class);
 Route::get('test', function () {
     return view('pasien.layouts.app');
 });
+
+
+
+Route::get('/antrian/hari-ini', [HomeController::class, 'antrian'])->name('antrian');
+
+
 
 
 require __DIR__ . '/auth.php';

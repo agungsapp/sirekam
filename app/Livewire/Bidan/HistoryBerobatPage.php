@@ -76,7 +76,7 @@ class HistoryBerobatPage extends Component
             'pendaftars' => $pendaftars,
             'tanggal_awal' => $this->tanggal_awal ? Carbon::parse($this->tanggal_awal)->format('d-m-Y') : 'Awal',
             'tanggal_akhir' => $this->tanggal_akhir ? Carbon::parse($this->tanggal_akhir)->format('d-m-Y') : 'Akhir',
-        ]);
+        ])->setPaper('a4', 'landscape');
 
         $filename = 'laporan_history_berobat_' . Carbon::now()->format('Ymd_His') . '.pdf';
         return response()->streamDownload(function () use ($pdf) {
