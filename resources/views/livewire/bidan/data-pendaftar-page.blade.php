@@ -36,7 +36,10 @@
 																				<td>
 																						<a href="{{ route('bidan.detail-pendaftaran', $p->id) }}" class="btn btn-info"><i
 																										class="bi bi-info-lg"></i></a>
-																						@if ($p->status == 'menunggu')
+																						@if ($p->status == 'pending')
+																								<a href="{{ route('bidan.pemeriksaan-awal', $p->id) }}" class="btn btn-info"> <i
+																												class="bi bi-search"></i>datang</a>
+																						@elseif($p->status == 'menunggu')
 																								<a href="{{ route('bidan.pemeriksaan-awal', $p->id) }}" class="btn btn-primary"> <i
 																												class="bi bi-search"></i> periksa </a>
 																						@elseif($p->status == 'diperiksa')

@@ -10,3 +10,7 @@ pendaftaran -> awal
 pendaftaran -> lanjut
 
 - history pasien
+
+
+revisi : 
+- ubah status ke pending 

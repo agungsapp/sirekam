@@ -54,7 +54,6 @@ class PasienLamaController extends Controller
             Pendaftaran::create([
                 'id_pasien' => $pasien->id,
                 'tanggal_kunjungan' => $validated['tanggal_kunjungan'],
-                'status' => 'menunggu',
             ]);
 
             DB::commit();

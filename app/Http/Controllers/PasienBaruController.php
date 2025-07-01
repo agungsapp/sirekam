@@ -72,12 +72,12 @@ class PasienBaruController extends Controller
             Pendaftaran::create([
                 'id_pasien' => $pasien->id,
                 'tanggal_kunjungan' => $validated['tanggal_kunjungan'],
-                'status' => 'menunggu'
             ]);
 
             // Redirect dengan pesan sukses
             return redirect()->to('/home#pasien-baru')->with('sent-message', 'Pendaftaran berhasil! Terima kasih telah mendaftar.');
         } catch (\Exception $e) {
+            // throw $e;
             // Log error untuk debugging
             Log::error('Gagal menyimpan data pasien: ' . $e->getMessage());
 
