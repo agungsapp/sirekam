@@ -70,6 +70,10 @@
 								<nav id="navmenu" class="navmenu">
 										<ul>
 												<li><a href="#hero" class="active">Home<br></a></li>
+												@if (Auth::guard('pasien')->check())
+														<li><a href="#download">Download</a></li>
+												@else
+												@endif
 												<li><a href="#about">About</a></li>
 												<li><a href="#faq">FaQ</a></li>
 												<li><a href="#testimoni">Testimoni</a></li>
@@ -94,7 +98,7 @@
 												@csrf
 										</form>
 								@elseif(Auth::guard('web')->check())
-										<a class="cta-btn d-none d-sm-block" href="{{ route('home.index') }}">
+										<a class="cta-btn d-none d-sm-block" href="{{ route('bidan.dashboard') }}">
 												Dashboard Bidan
 										</a>
 								@else

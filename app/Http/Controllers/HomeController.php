@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\FaqModel;
 use App\Models\Gallery;
+use App\Models\Pasien;
 use App\Models\Pendaftaran;
 use App\Models\Testimoni;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class HomeController extends Controller
 {
@@ -113,5 +115,33 @@ class HomeController extends Controller
                 'sisa_waktu' => isset($waktuSelesaiPelayanan) ? $waktuSelesaiPelayanan->diffInMinutes(Carbon::now(), false) : 0,
             ] : null,
         ], 200, [], JSON_NUMERIC_CHECK);
+    }
+
+
+    public function dataRekam($idPasien)
+    {
+        try {
+            $pasien = Pasien::select('id', 'nik', 'nama', 'jenis_kelamin', 'tanggal_lahir', 'no_hp', 'alamat', 'created_at')
+                ->with(['pendaftaran' => function ($q) {
+                    $q->select('id', 'id_pasien', 'tanggal_kunjungan', 'status')
+                        ->with([
+                            'awal' => fn($q) => $q->select('id', 'id_pendaftaran', 'tanggal_periksa', 'tekanan_darah', 'berat_badan', 'tinggi_badan', 'keluhan'),
+                            'lanjut' => fn($q) => $q->select('id', 'id_pendaftaran', 'diagnosa', 'tindakan', 'id_ruang_bersalin')
+                                ->with(['resep' => fn($q) => $q->select('id', 'id_lanjut', 'id_obat', 'aturan')->with(['obat' => fn($q) => $q->select('id', 'nama')])])
+                        ])
+                        ->latest()
+                        ->take(3); // Batasi 3 pendaftaran
+                }])
+                ->findOrFail($idPasien);
+
+            return view('pasien.rekam_medis.data_rekam', compact('pasien'));
+        } catch (\Exception $e) {
+            throw $e;
+            Log::error('Gagal memuat detail pasien: ' . $e->getMessage(), [
+                'pasien_id' => $idPasien,
+                'exception' => $e,
+            ]);
+            return redirect()->route('bidan.dashboard')->with('error-message', 'Gagal memuat data pasien. Silakan coba lagi.');
+        }
     }
 }

@@ -71,6 +71,27 @@
 		</section>
 		<!-- /Hero Section -->
 
+
+		@if (Auth::guard('pasien')->check())
+				{{-- download rekam medis --}}
+				<section id="download" class="download section">
+						<div class="container">
+								<div class="row gy-4 gx-5">
+										<div class="col-lg-6">
+												<h3>Download Rekam Medis</h3>
+												<p>Silakan klik tombol di bawah ini untuk mengunduh rekam medis Anda.</p>
+												<a href="{{ route('data-rekam', Auth::guard('pasien')->user()->id) }}" class="btn btn-primary">Download</a>
+										</div>
+								</div>
+						</div>
+				</section>
+				{{-- download rekam medis --}}
+		@endif
+
+
+
+
+
 		<!-- About Section -->
 		<section id="about" class="about section">
 				<div class="container">
@@ -454,8 +475,7 @@
 															"type": "bullets",
 															"clickable": true
 														}
-													}
-			</script>
+													}</script>
 												<div class="swiper-wrapper">
 
 														<div class="swiper-slide">

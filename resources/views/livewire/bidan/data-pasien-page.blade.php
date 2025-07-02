@@ -113,6 +113,17 @@
 						</div>
 				</div>
 
+				@if (session()->has('message'))
+						<div class="alert alert-success">
+								{{ session('message') }}
+						</div>
+				@endif
+				@if (session()->has('error'))
+						<div class="alert alert-danger">
+								{{ session('error') }}
+						</div>
+				@endif
+
 				<!-- Tabel Pasien -->
 				<div class="row" id="table-striped">
 						<div class="col-12">
@@ -162,8 +173,8 @@
 																										@method('PUT')
 																								</form> --}}
 																								<button type="button" wire:click="resetPassword({{ $p->id }})"
-																										wire:confirm="Are you sure you want to reset this password?" class="btn btn-danger"
-																										aria-label="reset password"><i class="bi bi-key-fill"></i></button>
+																										wire:confirm="Apakah anda yakin akan melakukan reset password untuk pasien {{ $p->nama }}?"
+																										class="btn btn-danger" aria-label="reset password"><i class="bi bi-key-fill"></i></button>
 
 
 

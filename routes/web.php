@@ -84,6 +84,7 @@ Route::prefix('bidan')->name('bidan.')->middleware('auth')->group(function () {
 Route::get('home', [HomeController::class, 'index'])->name('home.index');
 Route::resource('pasien-baru', PasienBaruController::class);
 Route::resource('pasien-lama', PasienLamaController::class);
+Route::get('data-rekam/{id}', [HomeController::class, 'dataRekam'])->name('data-rekam');
 
 Route::get('test', function () {
     return view('pasien.layouts.app');
