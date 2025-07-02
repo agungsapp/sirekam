@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PasienBaruController;
 use App\Http\Controllers\ProfileController;
 use App\Livewire\Bidan\DashboardPage;
+use App\Livewire\Bidan\DataAntrianPage;
 use App\Livewire\Bidan\DataFaqPage;
 use App\Livewire\Bidan\DataGalleryPage;
 use App\Livewire\Bidan\DataObatPage;
@@ -21,6 +22,7 @@ use App\Livewire\Bidan\HistoryBerobatPage;
 use App\Livewire\Bidan\PemeriksaanAwalPage;
 use App\Livewire\Bidan\PemeriksaanLanjutPage;
 use App\Livewire\Bidan\ProfilePage;
+use App\Livewire\Bidan\ResetPasswordPasienPage;
 use App\Models\PemeriksaanLanjut;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -57,6 +59,10 @@ Route::prefix('bidan')->name('bidan.')->middleware('auth')->group(function () {
     // Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('pendaftar', DataPendaftarPage::class)->name('pendaftar');
     Route::get('detail-pendaftaran/{id}', DetailPendaftarPage::class)->name('detail-pendaftaran');
+
+    Route::get('antrian', DataAntrianPage::class)->name('antrian');
+    Route::get('reset-password/{id}', ResetPasswordPasienPage::class)->name('reset-password');
+
     Route::get('data-ruang', DataRuangPage::class)->name('data-ruang');
     Route::get('data-obat', DataObatPage::class)->name('data-obat');
     Route::get('data-pasien', DataPasienPage::class)->name('data-pasien');

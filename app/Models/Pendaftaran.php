@@ -16,6 +16,15 @@ class Pendaftaran extends Model
         'status',
     ];
 
+    public function generateNoAntrian(): int
+    {
+        $lastPendaftaran = self::where('status', '!=', 'selesai')
+            ->orderBy('no_antrian', 'desc')
+            ->first();
+
+        return $lastPendaftaran ? $lastPendaftaran->no_antrian + 1 : 1;
+    }
+
     public function pasien(): BelongsTo
     {
         return $this->belongsTo(Pasien::class, 'id_pasien');

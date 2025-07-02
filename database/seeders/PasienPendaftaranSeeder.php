@@ -23,6 +23,7 @@ class PasienPendaftaranSeeder extends Seeder
             'Siti Aminah',
             'Dewi Lestari',
             'Rina Susanti',
+            'Anjani Pratiwi',
         ];
 
         // Array alamat dummy
@@ -30,16 +31,17 @@ class PasienPendaftaranSeeder extends Seeder
             'Jl. Mawar No. 12, Jakarta Selatan',
             'Jl. Kenanga No. 5, Bandung',
             'Jl. Melati No. 8, Surabaya',
+            'Jl. Anggrek No. 3, Yogyakarta',
         ];
 
         // Array status untuk simulasi antrian
-        $statusAntrian = ['menunggu', 'menunggu', 'menunggu'];
+        $statusAntrian = ['pending', 'pending', 'pending', 'pending'];
 
         // Tanggal hari ini
         $today = Carbon::today()->toDateString();
 
-        // Loop untuk membuat 3 pasien
-        for ($i = 0; $i < 3; $i++) {
+        // Loop untuk membuat 4 pasien
+        for ($i = 0; $i < 4; $i++) {
             // Generate NIK unik (16 digit)
             $nik = $faker->unique()->numerify('32##############'); // Awalan '32' untuk Jawa Barat
 

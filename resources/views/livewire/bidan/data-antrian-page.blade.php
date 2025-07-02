@@ -13,6 +13,7 @@
 												<table id="tableData" class="table-striped mb-0 table">
 														<thead>
 																<tr>
+																		<th>#</th>
 																		<th>NAMA</th>
 																		<th>NIK</th>
 																		<th>JENIS KELAMIN</th>
@@ -26,6 +27,7 @@
 														<tbody>
 																@forelse ($pendaftars as $p)
 																		<tr>
+																				<td>{{ $p->no_antrian }}</td>
 																				<td class="text-bold-500">{{ $p->pasien->nama }}</td>
 																				<td>{{ $p->pasien->nik }}</td>
 																				<td class="text-bold-500">{{ $p->pasien->jenis_kelamin == 'l' ? 'laki - laki' : 'perempuan' }}</td>

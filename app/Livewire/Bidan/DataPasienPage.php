@@ -158,6 +158,25 @@ class DataPasienPage extends Component
         $this->reset(['nik', 'nama', 'jenis_kelamin', 'tanggal_lahir', 'no_hp', 'alamat', 'editMode', 'pasienId']);
     }
 
+
+
+    public function resetPassword($id)
+    {
+
+        $pasien = \App\Models\Pasien::find($id);
+        if ($pasien) {
+            // Asumsikan ada field 'tanggal_lahir' di model Pasien dengan format 'Y-m-d'
+            $tanggal = \Carbon\Carbon::parse($pasien->tanggal_lahir)->format('dmY');
+            $pasien->password = bcrypt($tanggal); // Set password default sesuai tanggal lahir
+            $pasien->save();
+            session()->flash('message', 'Password pasien telah direset ke ' . $tanggal);
+
+            // dd('Password pasien telah direset ke ' . $tanggal);
+        } else {
+            session()->flash('error', 'Pasien tidak ditemukan');
+        }
+    }
+
     public function render()
     {
         return view('livewire.bidan.data-pasien-page');

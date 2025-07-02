@@ -96,6 +96,13 @@
 																<span>Data Pendaftar</span>
 														</a>
 												</li>
+												<li class="sidebar-item {{ Route::is('bidan.antrian') ? 'active' : '' }}">
+														<a href="{{ route('bidan.antrian') }}" class='sidebar-link'>
+																<i class="bi bi-grid-fill"></i>
+																<span>Data Antrian</span>
+														</a>
+												</li>
+
 												<li class="sidebar-item {{ Route::is('bidan.data-ruang') ? 'active' : '' }}">
 														<a href="{{ route('bidan.data-ruang') }}" class='sidebar-link'>
 																<i class="bi bi-grid-fill"></i>
@@ -191,11 +198,11 @@
 						<footer>
 								<div class="footer text-muted mb-0 text-center">
 										<div class="">
-												<p>2025 &copy; Mazer</p>
+												<p>2025 &copy; BPS Nurhidayah</p>
 										</div>
 										<div class="">
 												<p>Crafted with <span class="text-danger"><i class="bi bi-heart-fill icon-mid"></i></span>
-														by <a href="#">me</a></p>
+														by <a href="#">melia</a></p>
 										</div>
 								</div>
 						</footer>

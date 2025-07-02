@@ -14,7 +14,35 @@ class DataPendaftarPage extends Component
 
     public function mount()
     {
-        $this->pendaftars = Pendaftaran::where('status', '!=', 'selesai')->with('pasien')->orderBy('id', 'desc')->get();
+        $this->pendaftars = Pendaftaran::whereIn('status', ['pending', 'selesai'])->with('pasien')->orderBy('id', 'desc')->get();
+    }
+
+
+    public function datang($id)
+    {
+        $pendaftaran = Pendaftaran::find($id);
+        if ($pendaftaran) {
+            $pendaftaran->status = 'menunggu';
+            $pendaftaran->no_antrian = $pendaftaran->generateNoAntrian();
+            $pendaftaran->save();
+            $this->mount();
+            session()->flash('success', 'Pendaftaran berhasil diperbarui.');
+        } else {
+            session()->flash('error', 'Pendaftaran tidak ditemukan.');
+        }
+    }
+
+    public function tidakDatang($id)
+    {
+        $pendaftaran = Pendaftaran::find($id);
+        if ($pendaftaran) {
+            $pendaftaran->status = 'batal';
+            $pendaftaran->save();
+            $this->mount();
+            session()->flash('success', 'Pendaftaran berhasil diperbarui.');
+        } else {
+            session()->flash('error', 'Pendaftaran tidak ditemukan.');
+        }
     }
 
 

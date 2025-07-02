@@ -725,7 +725,7 @@
 												const aktifClass = (res.aktif && item.id === res.aktif.id) ? 'table-primary fw-bold' : '';
 												isi += `
                         <tr class="${aktifClass}">
-                            <td>${index + 1}</td>
+                            <td>#${item.no_antrian}</td>
                             <td>${item.nama}</td>
                             <td>${item.status}</td>
                             <td>${item.estimasi}</td>

@@ -150,10 +150,25 @@
 																								<span class="badge rounded-pill bg-danger">{{ $p->pendaftaran->count() }}</span>
 																						</td>
 																						<td>
+
 																								<a href="{{ route('bidan.detail-pasien', $p->id) }}" class="btn btn-info"><i
 																												class="bi bi-info-lg"></i></a>
-																								<button wire:click="editPasien({{ $p->id }})" class="btn btn-warning"><i
-																												class="bi bi-pencil-square"></i></button>
+
+																								<button aria-label="edit pasien" wire:click="editPasien({{ $p->id }})"
+																										class="btn btn-warning"><i class="bi bi-pencil-square"></i></button>
+
+																								{{-- <form action="" method="post" class="d-inline">
+																										@csrf
+																										@method('PUT')
+																								</form> --}}
+																								<button type="button" wire:click="resetPassword({{ $p->id }})"
+																										wire:confirm="Are you sure you want to reset this password?" class="btn btn-danger"
+																										aria-label="reset password"><i class="bi bi-key-fill"></i></button>
+
+
+
+																								{{-- <a href="{{ route('bidan.reset-password', $p->id) }}" aria-label="reset password"
+																										class="btn btn-danger"><i class="bi bi-key-fill"></i></a> --}}
 																						</td>
 																				</tr>
 																		@empty

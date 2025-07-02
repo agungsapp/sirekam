@@ -40,16 +40,18 @@ class HomeController extends Controller
         $waktuPerPasien = config('antrian.waktu_per_pasien', 10); // Ambil dari config, default 10 menit
         $today = Carbon::today()->toDateString();
 
-        // Ambil antrian hari ini dengan eager loading
-        $antrian = Pendaftaran::with('pasien')
+        // Ambil antrian hari ini dengan eager loading, pastikan urut berdasarkan no_antrian (numeric)
+        $antrian = Pendaftaran::with(['pasien'])
             ->whereDate('tanggal_kunjungan', $today)
-            ->orderBy('created_at', 'asc')
-            ->select('id', 'id_pasien', 'status', 'created_at', 'updated_at')
+            ->orderByRaw('CAST(no_antrian AS UNSIGNED) ASC')
+            ->select('id', 'no_antrian', 'id_pasien', 'status', 'created_at', 'updated_at')
             ->get();
 
         // Ambil pasien yang sedang dilayani
-        $sedangDilayani = Pendaftaran::where('status', 'diperiksa')
-            ->select('id', 'id_pasien', 'updated_at')
+        $sedangDilayani = Pendaftaran::with('pasien')
+            ->where('status', 'diperiksa')
+            ->whereDate('tanggal_kunjungan', $today)
+            ->select('id', 'no_antrian', 'id_pasien', 'updated_at')
             ->first();
 
         $estimasiSekarang = Carbon::now();
@@ -70,11 +72,13 @@ class HomeController extends Controller
 
         foreach ($antrian as $index => $item) {
             $pasienNama = $item->pasien->nama ?? '-';
+            $noAntrian = $item->no_antrian ?? ($item->pasien->no_antrian ?? '-');
 
             if ($item->status === 'selesai') {
                 $estimasi[] = [
                     'id' => $item->id,
                     'nama' => $pasienNama,
+                    'no_antrian' => $noAntrian,
                     'status' => 'Selesai',
                     'estimasi' => 'Selesai',
                 ];
@@ -82,6 +86,7 @@ class HomeController extends Controller
                 $estimasi[] = [
                     'id' => $item->id,
                     'nama' => $pasienNama,
+                    'no_antrian' => $noAntrian,
                     'status' => 'Sedang Dilayani',
                     'estimasi' => 'Sedang Dilayani',
                 ];
@@ -91,6 +96,7 @@ class HomeController extends Controller
                 $estimasi[] = [
                     'id' => $item->id,
                     'nama' => $pasienNama,
+                    'no_antrian' => $noAntrian,
                     'status' => 'Menunggu',
                     'estimasi' => $estimasiSekarang->format('H:i'),
                 ];
@@ -102,8 +108,9 @@ class HomeController extends Controller
             'list' => $estimasi,
             'aktif' => $sedangDilayani ? [
                 'id' => $sedangDilayani->id,
+                'no_antrian' => $sedangDilayani->no_antrian ?? ($sedangDilayani->pasien->no_antrian ?? '-'),
                 'nama' => $sedangDilayani->pasien->nama ?? '-',
-                'sisa_waktu' => $sedangDilayani ? $waktuSelesaiPelayanan->diffInMinutes(Carbon::now(), false) : 0,
+                'sisa_waktu' => isset($waktuSelesaiPelayanan) ? $waktuSelesaiPelayanan->diffInMinutes(Carbon::now(), false) : 0,
             ] : null,
         ], 200, [], JSON_NUMERIC_CHECK);
     }

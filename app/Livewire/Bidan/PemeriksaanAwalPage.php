@@ -74,7 +74,7 @@ class PemeriksaanAwalPage extends Component
 
             DB::commit();
             session()->flash('success', 'Data pemeriksaan berhasil disimpan.');
-            return redirect()->route('bidan.pendaftar');
+            return redirect()->route('bidan.antrian');
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Gagal menyimpan data: ' . $e->getMessage());

@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pendaftaran', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_pasien')->constrained('pasien')->onDelete('cascade');
+            $table->integer('no_antrian')->nullable();
             $table->date('tanggal_kunjungan');
             $table->enum('status', ['pending', 'menunggu', 'diperiksa', 'selesai', 'batal'])->default('pending');
             $table->timestamps();
