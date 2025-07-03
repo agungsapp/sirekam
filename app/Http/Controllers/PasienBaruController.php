@@ -67,6 +67,7 @@ class PasienBaruController extends Controller
                 'tanggal_lahir' => $validated['tanggal_lahir'],
                 'no_hp' => $validated['no_hp'],
                 'alamat' => $validated['alamat'],
+                'password' => Pasien::generatePassword($validated['tanggal_lahir']), // Enkripsi di sini
             ]);
 
             Pendaftaran::create([

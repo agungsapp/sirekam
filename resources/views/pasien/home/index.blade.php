@@ -346,63 +346,45 @@
 
 		<!-- Pendaftaran pasien lama -->
 		<section id="pasien-lama" class="appointment section">
-
-				<!-- Section Title -->
 				<div class="section-title container" data-aos="fade-up">
 						<h2>Pasien Lama</h2>
 						<p>Silakan isi formulir berikut jika anda pernah mendaftar sebelumnya.<br> Jika belum pernah mendaftar, klik tombol
 								berikut:</p>
 						<a href="#pasien-baru" class="btn btn-success mt-3">Pendaftaran pasien baru</a>
-				</div><!-- End Section Title -->
+				</div>
 
 				<div class="container" data-aos="fade-up" data-aos-delay="100">
+						<!-- Pesan Error dan Sukses -->
+						<div class="alert alert-danger mt-5" id="error-message" style="display: none;" role="alert"></div>
+						<div class="alert alert-success mt-5" id="success-message" style="display: none;" role="alert"></div>
 
-						<form action="{{ route('pasien-lama.store') }}" method="post">
+						<form id="pasien-lama-form" action="{{ route('pasien-lama.ajax-store') }}" method="post">
 								@csrf
 								<div class="row">
 										<div class="col-md-4 form-group">
 												<label for="nik">Nik</label>
-												<input type="number" name="nik" class="form-control" value="{{ old('nik') }}" id="nik"
-														placeholder="NIK" required>
+												<input type="number" name="nik" class="form-control" id="nik" placeholder="NIK" required>
+												<div class="invalid-feedback" id="nik-error"></div>
 										</div>
 										<div class="col-md-4 form-group">
 												<label for="no_hp">Nomor Handphone</label>
-												<input type="text" name="no_hp" class="form-control" id="no_hp" value="{{ old('no_hp') }}"
-														placeholder="Nomor HP/WA" required>
+												<input type="text" name="no_hp" class="form-control" id="no_hp" placeholder="Nomor HP/WA"
+														required>
+												<div class="invalid-feedback" id="no_hp-error"></div>
 										</div>
 										<div class="col-md-4 form-group">
 												<label for="tanggal_kunjungan">Tanggal Kunjungan</label>
-												<input type="date" class="form-control" name="tanggal_kunjungan"
-														value="{{ old('tanggal_kunjungan') }}" id="tanggal_kunjungan" placeholder="Tanggal lahir" required>
+												<input type="date" class="form-control" name="tanggal_kunjungan" id="tanggal_kunjungan" required>
+												<div class="invalid-feedback" id="tanggal_kunjungan-error"></div>
 										</div>
 								</div>
-								@if ($errors->any())
-										<div class="error-message">
-												<ul>
-														@foreach ($errors->all() as $error)
-																<li>{{ $error }}</li>
-														@endforeach
-												</ul>
-										</div>
-								@endif
-								@if (session('sent-message'))
-										<div class="alert alert-success mt-5" role="alert">
-												{{ session('sent-message') }}
-										</div>
-								@endif
-								@if (session('error-message'))
-										<div class="alert alert-danger mt-5" role="alert">
-												{{ session('error-message') }}
-										</div>
-								@endif
 								<div class="mt-3">
 										<div class="text-center"><button type="submit" class="btn btn-primary">Daftar</button></div>
 								</div>
 						</form>
-
 				</div>
-
-		</section><!-- /Pendaftaran pasien lama -->
+		</section>
+		<!-- /Pendaftaran pasien lama -->
 
 
 
@@ -767,6 +749,60 @@
 				document.addEventListener('DOMContentLoaded', () => {
 						loadAntrian();
 						setInterval(loadAntrian, 5000); // Update every 5 seconds
+				});
+		</script>
+		<script>
+				document.getElementById('pasien-lama-form').addEventListener('submit', function(e) {
+						e.preventDefault();
+
+						// Reset pesan error dan sukses
+						const errorMessage = document.getElementById('error-message');
+						const successMessage = document.getElementById('success-message');
+						errorMessage.style.display = 'none';
+						successMessage.style.display = 'none';
+						document.getElementById('nik-error').innerHTML = '';
+						document.getElementById('no_hp-error').innerHTML = '';
+						document.getElementById('tanggal_kunjungan-error').innerHTML = '';
+						document.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
+
+						// Kirim request dengan Axios
+						axios.post("{{ route('pasien-lama.ajax-store') }}", new FormData(this), {
+										headers: {
+												'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+										}
+								})
+								.then(response => {
+										if (response.data.status === 'success') {
+												successMessage.innerHTML = response.data.message;
+												successMessage.style.display = 'block';
+												this.reset(); // Reset form setelah sukses
+										}
+								})
+								.catch(error => {
+										if (error.response && error.response.status === 422) {
+												const errors = error.response.data.errors || {};
+												if (error.response.data.message) {
+														errorMessage.innerHTML = error.response.data.message;
+														errorMessage.style.display = 'block';
+												}
+												// Tampilkan error validasi spesifik
+												if (errors.nik) {
+														document.getElementById('nik').classList.add('is-invalid');
+														document.getElementById('nik-error').innerHTML = errors.nik[0];
+												}
+												if (errors.no_hp) {
+														document.getElementById('no_hp').classList.add('is-invalid');
+														document.getElementById('no_hp-error').innerHTML = errors.no_hp[0];
+												}
+												if (errors.tanggal_kunjungan) {
+														document.getElementById('tanggal_kunjungan').classList.add('is-invalid');
+														document.getElementById('tanggal_kunjungan-error').innerHTML = errors.tanggal_kunjungan[0];
+												}
+										} else {
+												errorMessage.innerHTML = error.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.';
+												errorMessage.style.display = 'block';
+										}
+								});
 				});
 		</script>
 @endpush

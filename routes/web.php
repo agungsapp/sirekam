@@ -91,7 +91,7 @@ Route::get('test', function () {
 });
 
 
-
+Route::post('/pasien-lama/ajax-store', [PasienLamaController::class, 'store'])->name('pasien-lama.ajax-store');
 Route::get('/antrian/hari-ini', [HomeController::class, 'antrian'])->name('antrian');
 
 
