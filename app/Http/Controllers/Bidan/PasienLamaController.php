@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Pasien;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class PasienLamaController extends Controller
 {
@@ -51,15 +53,37 @@ class PasienLamaController extends Controller
                     ->with('error-message', 'Data pasien tidak ditemukan. Pastikan NIK dan nomor HP sesuai.');
             }
 
+            // Cek jumlah pendaftar untuk tanggal yang sama
+            $tanggal_kunjungan = Carbon::parse($validated['tanggal_kunjungan']);
+            $jumlah_pendaftar = Pendaftaran::whereDate('tanggal_kunjungan', $tanggal_kunjungan)
+                ->count();
+
+            // Set nomor antrian (jumlah pendaftar saat ini + 1)
+            $no_antrian = $jumlah_pendaftar + 1;
+
+            // Hitung estimasi waktu kedatangan
+            // Asumsi pelayanan mulai jam 08:00 pagi
+            $jam_pelayanan_mulai = Carbon::parse($tanggal_kunjungan->format('Y-m-d') . ' 08:00:00');
+            $estimasi_waktu = $jam_pelayanan_mulai->addHours($jumlah_pendaftar); // Tambah 1 jam per pasien
+
+            // Simpan pendaftaran
             Pendaftaran::create([
                 'id_pasien' => $pasien->id,
-                'tanggal_kunjungan' => $validated['tanggal_kunjungan'],
+                'no_antrian' => $no_antrian,
+                'tanggal_kunjungan' => $tanggal_kunjungan,
+                'status' => 'pending'
             ]);
 
             DB::commit();
 
+            // Format pesan untuk alert
+            $formatted_estimasi = $estimasi_waktu->format('d M Y H:i');
+            $message = "Pendaftaran berhasil! Nomor antrian Anda: {$no_antrian}. Estimasi waktu kedatangan: {$formatted_estimasi}";
+
+            // SweetAlert dan redirect
+            Alert::success('Pendaftaran Berhasil', $message);
             return redirect()->to('/home#pasien-lama')
-                ->with('sent-message', 'Pendaftaran berhasil! Silakan tunggu konfirmasi kunjungan.');
+                ->with('sent-message', $message);
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error('Gagal menyimpan pendaftaran pasien lama: ' . $th->getMessage(), [

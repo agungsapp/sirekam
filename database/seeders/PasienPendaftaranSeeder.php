@@ -51,6 +51,7 @@ class PasienPendaftaranSeeder extends Seeder
             // Format password dari tanggal lahir (contoh: 20-05-1990 jadi 20051990)
             $passwordRaw = date('dmY', strtotime($tanggalLahir));
 
+            $antrian = $i + 1;
             // Buat data pasien
             $pasien = Pasien::create([
                 'nik' => $nik,
@@ -65,6 +66,7 @@ class PasienPendaftaranSeeder extends Seeder
             // Buat data pendaftaran untuk hari ini
             $pendaftaran = Pendaftaran::create([
                 'id_pasien' => $pasien->id,
+                'no_antrian' => $antrian, // Generate nomor antrian
                 'tanggal_kunjungan' => $today, // Selalu hari ini
                 'status' => $statusAntrian[$i], // Status bervariasi untuk simulasi
                 'created_at' => Carbon::now()->subMinutes(30 - $i * 10), // Simulasi urutan antrian

@@ -14,6 +14,7 @@
 														<thead>
 																<tr>
 																		<th>NAMA</th>
+																		<th>NOMOR ANTRIAN</th>
 																		<th>NIK</th>
 																		<th>JENIS KELAMIN</th>
 																		<th>UMUR</th>
@@ -27,6 +28,7 @@
 																@forelse ($pendaftars as $p)
 																		<tr>
 																				<td class="text-bold-500">{{ $p->pasien->nama }}</td>
+																				<td>{{ $p->no_antrian }}</td>
 																				<td>{{ $p->pasien->nik }}</td>
 																				<td class="text-bold-500">{{ $p->pasien->jenis_kelamin == 'l' ? 'laki - laki' : 'perempuan' }}</td>
 																				<td>{{ $p->pasien->umur }} Tahun</td>

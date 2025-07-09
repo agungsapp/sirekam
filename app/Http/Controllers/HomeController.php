@@ -38,8 +38,8 @@ class HomeController extends Controller
 
     public function antrian()
     {
-        // Konfigurasi waktu rata-rata per pasien (dalam menit)
-        $waktuPerPasien = config('antrian.waktu_per_pasien', 10); // Ambil dari config, default 10 menit
+        // Konfigurasi waktu rata-rata per pasien (1 jam = 60 menit)
+        $waktuPerPasien = 60; // Diubah menjadi 60 menit sesuai aturan 1 jam per pasien
         $today = Carbon::today()->toDateString();
 
         // Ambil antrian hari ini dengan eager loading, pastikan urut berdasarkan no_antrian (numeric)
@@ -56,10 +56,10 @@ class HomeController extends Controller
             ->select('id', 'no_antrian', 'id_pasien', 'updated_at')
             ->first();
 
-        $estimasiSekarang = Carbon::now();
-        $estimasi = [];
+        // Asumsi pelayanan mulai jam 08:00 pagi
+        $estimasiSekarang = Carbon::parse($today . ' 08:00:00');
 
-        // Jika ada pasien sedang dilayani, hitung sisa waktu berdasarkan updated_at
+        // Jika ada pasien sedang dilayani, sesuaikan estimasi waktu
         if ($sedangDilayani) {
             $waktuMulaiPelayanan = Carbon::parse($sedangDilayani->updated_at);
             $waktuSelesaiPelayanan = $waktuMulaiPelayanan->copy()->addMinutes($waktuPerPasien);
@@ -72,9 +72,11 @@ class HomeController extends Controller
             }
         }
 
+        $estimasi = [];
+
         foreach ($antrian as $index => $item) {
             $pasienNama = $item->pasien->nama ?? '-';
-            $noAntrian = $item->no_antrian ?? ($item->pasien->no_antrian ?? '-');
+            $noAntrian = $item->no_antrian ?? '-';
 
             if ($item->status === 'selesai') {
                 $estimasi[] = [
@@ -94,15 +96,23 @@ class HomeController extends Controller
                 ];
                 // Estimasi untuk pasien berikutnya dimulai setelah pasien ini selesai
                 $estimasiSekarang = $estimasiSekarang->copy()->addMinutes($waktuPerPasien);
-            } elseif ($item->status === 'menunggu') {
+            } elseif ($item->status === 'pending') {
                 $estimasi[] = [
                     'id' => $item->id,
                     'nama' => $pasienNama,
                     'no_antrian' => $noAntrian,
-                    'status' => 'Menunggu',
+                    'status' => 'Antrian',
                     'estimasi' => $estimasiSekarang->format('H:i'),
                 ];
                 $estimasiSekarang = $estimasiSekarang->copy()->addMinutes($waktuPerPasien);
+            } elseif ($item->status === 'batal') {
+                $estimasi[] = [
+                    'id' => $item->id,
+                    'nama' => $pasienNama,
+                    'no_antrian' => $noAntrian,
+                    'status' => 'Batal',
+                    'estimasi' => 'Batal',
+                ];
             }
         }
 
@@ -110,13 +120,12 @@ class HomeController extends Controller
             'list' => $estimasi,
             'aktif' => $sedangDilayani ? [
                 'id' => $sedangDilayani->id,
-                'no_antrian' => $sedangDilayani->no_antrian ?? ($sedangDilayani->pasien->no_antrian ?? '-'),
+                'no_antrian' => $sedangDilayani->no_antrian ?? '-',
                 'nama' => $sedangDilayani->pasien->nama ?? '-',
                 'sisa_waktu' => isset($waktuSelesaiPelayanan) ? $waktuSelesaiPelayanan->diffInMinutes(Carbon::now(), false) : 0,
             ] : null,
         ], 200, [], JSON_NUMERIC_CHECK);
     }
-
 
     public function dataRekam($idPasien)
     {

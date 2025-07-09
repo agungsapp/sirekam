@@ -7,6 +7,7 @@ use App\Models\Pendaftaran;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class PasienBaruController extends Controller
 {
@@ -67,17 +68,38 @@ class PasienBaruController extends Controller
                 'tanggal_lahir' => $validated['tanggal_lahir'],
                 'no_hp' => $validated['no_hp'],
                 'alamat' => $validated['alamat'],
+                'password' => bcrypt($validated['nik']),
             ]);
 
+            // Cek jumlah pendaftar untuk tanggal yang sama
+            $tanggal_kunjungan = Carbon::parse($validated['tanggal_kunjungan']);
+            $jumlah_pendaftar = Pendaftaran::whereDate('tanggal_kunjungan', $tanggal_kunjungan)
+                ->count();
+
+            // Set nomor antrian (jumlah pendaftar saat ini + 1)
+            $no_antrian = $jumlah_pendaftar + 1;
+
+            // Hitung estimasi waktu kedatangan
+            // Asumsi pelayanan mulai jam 08:00 pagi
+            $jam_pelayanan_mulai = Carbon::parse($tanggal_kunjungan->format('Y-m-d') . ' 08:00:00');
+            $estimasi_waktu = $jam_pelayanan_mulai->addHours($jumlah_pendaftar); // Tambah 1 jam per pasien
+
+            // Simpan pendaftaran
             Pendaftaran::create([
                 'id_pasien' => $pasien->id,
-                'tanggal_kunjungan' => $validated['tanggal_kunjungan'],
+                'no_antrian' => $no_antrian,
+                'tanggal_kunjungan' => $tanggal_kunjungan,
+                'status' => 'pending'
             ]);
 
-            // Redirect dengan pesan sukses
-            return redirect()->to('/home#pasien-baru')->with('sent-message', 'Pendaftaran berhasil! Terima kasih telah mendaftar.');
+            // Format pesan untuk alert
+            $formatted_estimasi = $estimasi_waktu->format('d M Y H:i');
+            $message = "Pendaftaran berhasil! Nomor antrian Anda: {$no_antrian}. Estimasi waktu kedatangan: {$formatted_estimasi}";
+
+            // SweetAlert dan redirect
+            Alert::success('Pendaftaran Berhasil', $message);
+            return redirect()->to('/home#pasien-baru')->with('sent-message', $message);
         } catch (\Exception $e) {
-            // throw $e;
             // Log error untuk debugging
             Log::error('Gagal menyimpan data pasien: ' . $e->getMessage());
 

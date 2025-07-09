@@ -40,7 +40,7 @@
 </head>
 
 <body class="index-page">
-
+		@include('sweetalert::alert')
 		<header id="header" class="header sticky-top">
 
 				<div class="topbar d-flex align-items-center">
@@ -64,7 +64,7 @@
 								<a href="/" class="logo d-flex align-items-center me-auto">
 										<!-- Uncomment the line below if you also wish to use an image logo -->
 										<!-- <img src="/img/logo.png" alt=""> -->
-										<h1 class="sitename">Sirekam {{ Auth::guard('pasien')->check() }}</h1>
+										<h1 class="sitename">Sirekam </h1>
 								</a>
 
 								<nav id="navmenu" class="navmenu">

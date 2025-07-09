@@ -39,11 +39,6 @@
 																						<a href="{{ route('bidan.detail-pendaftaran', $p->id) }}" class="btn btn-info"><i
 																										class="bi bi-info-lg"></i></a>
 																						@if ($p->status == 'pending')
-																								<a href="#" wire:click.prevent='datang({{ $p->id }})'
-																										class="btn btn-success">datang</a>
-																								<a href="#" wire:click.prevent='tidakDatang({{ $p->id }})'
-																										wire:confirm="Yakin tidak datang?" class="btn btn-danger">tidak datang</a>
-																						@elseif($p->status == 'menunggu')
 																								<a href="{{ route('bidan.pemeriksaan-awal', $p->id) }}" class="btn btn-primary"> <i
 																												class="bi bi-search"></i> periksa </a>
 																						@elseif($p->status == 'diperiksa')

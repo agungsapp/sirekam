@@ -14,7 +14,7 @@ class DataAntrianPage extends Component
 
     public function mount()
     {
-        $this->pendaftars = Pendaftaran::whereNotIn('status', ['selesai', 'pending', 'batal'])
+        $this->pendaftars = Pendaftaran::whereNotIn('status', ['selesai', 'batal'])
             ->with('pasien')
             ->orderBy('no_antrian', 'asc')
             ->get();

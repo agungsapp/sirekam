@@ -12,6 +12,7 @@ class Pendaftaran extends Model
     protected $table = 'pendaftaran';
     protected $fillable = [
         'id_pasien',
+        'no_antrian',
         'tanggal_kunjungan',
         'status',
     ];

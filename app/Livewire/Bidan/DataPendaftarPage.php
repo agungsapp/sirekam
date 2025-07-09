@@ -14,7 +14,9 @@ class DataPendaftarPage extends Component
 
     public function mount()
     {
-        $this->pendaftars = Pendaftaran::whereIn('status', ['pending', 'selesai'])->with('pasien')->orderBy('id', 'desc')->get();
+        $this->pendaftars = Pendaftaran::whereIn('status', ['batal', 'selesai'])->with('pasien')->orderBy('id', 'desc')->get();
+
+        // dd($this->pendaftars);
     }
 
 
