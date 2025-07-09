@@ -33,4 +33,11 @@ class Pasien extends Authenticatable
     {
         return $this->hasMany(Pendaftaran::class, 'id_pasien');
     }
+
+    public static function generatePassword($tanggalLahir): string
+    {
+        // Menggunakan format tanggal lahir untuk generate password
+        $password = Carbon::parse($tanggalLahir)->format('dmY');
+        return bcrypt($password); // Mengembalikan password yang terenkripsi
+    }
 }

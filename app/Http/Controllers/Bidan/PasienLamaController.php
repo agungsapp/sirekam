@@ -36,21 +36,24 @@ class PasienLamaController extends Controller
     {
         // Validasi input
         $validated = $request->validate([
-            'nik' => ['required', 'digits:16'], // NIK harus 16 digit
-            'no_hp' => ['required', 'string', 'regex:/^08[0-9]{8,11}$/'], // Nomor HP Indonesia (08xxx, 10-13 digit)
-            'tanggal_kunjungan' => ['required', 'date', 'after_or_equal:today'], // Tanggal tidak boleh di masa lalu
+            'nik' => ['required', 'digits:16'],
+            'no_hp' => ['required', 'string', 'regex:/^08[0-9]{8,11}$/', 'max:13'],
+            'tanggal_kunjungan' => ['required', 'date', 'after_or_equal:today'],
         ]);
 
         try {
             DB::beginTransaction();
+
+            // Cari pasien berdasarkan NIK dan nomor HP
             $pasien = Pasien::where('nik', $validated['nik'])
                 ->where('no_hp', $validated['no_hp'])
                 ->first();
 
             if (!$pasien) {
-                return redirect()->back()
-                    ->withInput()
-                    ->with('error-message', 'Data pasien tidak ditemukan. Pastikan NIK dan nomor HP sesuai.');
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Data pasien tidak ditemukan. Pastikan NIK dan nomor HP sesuai.'
+                ], 422);
             }
 
             // Cek jumlah pendaftar untuk tanggal yang sama
@@ -87,13 +90,16 @@ class PasienLamaController extends Controller
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error('Gagal menyimpan pendaftaran pasien lama: ' . $th->getMessage(), [
-                'request' => $request->all(),
+                'nik' => $request->nik,
+                'no_hp' => $request->no_hp,
+                'tanggal_kunjungan' => $request->tanggal_kunjungan,
                 'exception' => $th,
             ]);
 
-            return redirect()->to('/home#pasien-lama')
-                ->withInput()
-                ->with('error-message', 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.');
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan saat mendaftar. Silakan coba lagi.'
+            ], 500);
         }
     }
 
