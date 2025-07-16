@@ -34,6 +34,8 @@ Route::get('/', function () {
 
     if (Auth::check()) { // Guard default web = bidan
         return redirect()->route('bidan.dashboard');
+    } else {
+        return redirect()->to('/home');
     }
 
     return redirect()->route('login');
