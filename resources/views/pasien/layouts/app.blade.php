@@ -84,12 +84,13 @@
 												<li><a href="#gallery">Galeri</a></li>
 												<li><a href="#antrian">Antrian</a></li>
 												<li><a href="#lokasi">Lokasi</a></li>
+												
 										</ul>
 										<i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
 								</nav>
 
 								@if (Auth::guard('pasien')->check())
-										<a class="cta-btn d-none d-sm-block" href="{{ route('logout') }}"
+										<a class="cta-btn d-sm-block" href="{{ route('logout') }}"
 												onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
 												Logout
 										</a>
@@ -98,11 +99,11 @@
 												@csrf
 										</form>
 								@elseif(Auth::guard('web')->check())
-										<a class="cta-btn d-none d-sm-block" href="{{ route('bidan.dashboard') }}">
+										<a class="cta-btn d-sm-block" href="{{ route('bidan.dashboard') }}">
 												Dashboard Bidan
 										</a>
 								@else
-										<a class="cta-btn d-none d-sm-block" href="{{ route('login') }}">
+										<a class="cta-btn d-sm-block" href="{{ route('login') }}">
 												Login
 										</a>
 								@endif
