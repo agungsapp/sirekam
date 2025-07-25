@@ -20,6 +20,7 @@ class Pasien extends Authenticatable
         'tanggal_lahir',
         'no_hp',
         'alamat',
+        'keluhan',
         'password'
     ];
 

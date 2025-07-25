@@ -7,6 +7,7 @@ use App\Models\Pasien;
 use App\Models\Pendaftaran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use RealRashid\SweetAlert\Facades\Alert;
@@ -34,27 +35,48 @@ class PasienLamaController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input
-        $validated = $request->validate([
-            'nik' => ['required', 'digits:16'],
-            'no_hp' => ['required', 'string', 'regex:/^08[0-9]{8,11}$/', 'max:13'],
+        // Validasi input berdasarkan status autentikasi
+        $rules = [
             'tanggal_kunjungan' => ['required', 'date', 'after_or_equal:today'],
-        ]);
+            'keluhan' => ['required', 'string'],
+        ];
+
+        if (!Auth::guard('pasien')->check()) {
+            $rules['nik'] = ['required', 'digits:16'];
+            $rules['no_hp'] = ['required', 'string', 'regex:/^08[0-9]{8,11}$/', 'max:13'];
+        }
+
+        $validated = $request->validate($rules);
 
         try {
             DB::beginTransaction();
 
-            // Cari pasien berdasarkan NIK dan nomor HP
-            $pasien = Pasien::where('nik', $validated['nik'])
-                ->where('no_hp', $validated['no_hp'])
-                ->first();
+            // Tentukan pasien berdasarkan status autentikasi
+            if (Auth::guard('pasien')->check()) {
+                $pasien = Pasien::find(Auth::guard('pasien')->id());
+                if (!$pasien) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data pasien tidak ditemukan.'
+                    ], 422);
+                }
+            } else {
+                // Cari pasien berdasarkan NIK dan nomor HP
+                $pasien = Pasien::where('nik', $validated['nik'])
+                    ->where('no_hp', $validated['no_hp'])
+                    ->first();
 
-            if (!$pasien) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data pasien tidak ditemukan. Pastikan NIK dan nomor HP sesuai.'
-                ], 422);
+                if (!$pasien) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data pasien tidak ditemukan. Pastikan NIK dan nomor HP sesuai.'
+                    ], 422);
+                }
             }
+
+            // Simpan keluhan
+            $pasien->keluhan = $validated['keluhan'];
+            $pasien->save();
 
             // Cek jumlah pendaftar untuk tanggal yang sama
             $tanggal_kunjungan = Carbon::parse($validated['tanggal_kunjungan']);
@@ -67,7 +89,7 @@ class PasienLamaController extends Controller
             // Hitung estimasi waktu kedatangan
             // Asumsi pelayanan mulai jam 08:00 pagi
             $jam_pelayanan_mulai = Carbon::parse($tanggal_kunjungan->format('Y-m-d') . ' 08:00:00');
-            $estimasi_waktu = $jam_pelayanan_mulai->addHours($jumlah_pendaftar); // Tambah 1 jam per pasien
+            $estimasi_waktu = $jam_pelayanan_mulai->copy()->addHours($jumlah_pendaftar); // Tambah 1 jam per pasien
 
             // Simpan pendaftaran
             Pendaftaran::create([
@@ -83,16 +105,18 @@ class PasienLamaController extends Controller
             $formatted_estimasi = $estimasi_waktu->format('d M Y H:i');
             $message = "Pendaftaran berhasil! Nomor antrian Anda: {$no_antrian}. Estimasi waktu kedatangan: {$formatted_estimasi}";
 
-            // SweetAlert dan redirect
-            Alert::success('Pendaftaran Berhasil', $message);
-            return redirect()->to('/home#pasien-lama')
-                ->with('sent-message', $message);
+            // Response untuk AJAX
+            return response()->json([
+                'status' => 'success',
+                'message' => $message
+            ]);
         } catch (\Throwable $th) {
             DB::rollBack();
             Log::error('Gagal menyimpan pendaftaran pasien lama: ' . $th->getMessage(), [
-                'nik' => $request->nik,
-                'no_hp' => $request->no_hp,
+                'nik' => $request->nik ?? null,
+                'no_hp' => $request->no_hp ?? null,
                 'tanggal_kunjungan' => $request->tanggal_kunjungan,
+                'keluhan' => $request->keluhan ?? null,
                 'exception' => $th,
             ]);
 

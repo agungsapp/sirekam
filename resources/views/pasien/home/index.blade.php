@@ -14,7 +14,10 @@
 
 						<div class="row mt-5">
 								<div>
-										<a href="#pasien-baru" class="btn btn-primary">Pasien Baru <i class="bi bi-arrow-right"></i></a>
+
+										@if (!Auth::guard('pasien')->check())
+												<a href="#pasien-baru" class="btn btn-primary">Pasien Baru <i class="bi bi-arrow-right"></i></a>
+										@endif
 										<a href="#pasien-lama" class="btn btn-secondary">Pasien Lama <i class="bi bi-arrow-right"></i></a>
 								</div>
 						</div>
@@ -216,89 +219,119 @@
 		</section><!-- /Services Section -->
 
 		<!-- Pendaftaran pasien baru -->
-		<section id="pasien-baru" class="appointment section">
+		@if (!Auth::guard('pasien')->check())
+				<section id="pasien-baru" class="appointment section">
 
-				<!-- Section Title -->
-				<div class="section-title container" data-aos="fade-up">
-						<h2>Pasien Baru</h2>
-						<p>Silakan isi formulir berikut untuk mendaftar sebagai pasien baru. <br> Jika sudah pernah mendaftar, klik tombol
-								berikut:</p>
-						<a href="#pasien-lama" class="btn btn-success mt-3">Pendaftaran pasien lama</a>
-				</div><!-- End Section Title -->
+						<!-- Section Title -->
+						<div class="section-title container" data-aos="fade-up">
+								<h2>Pasien Baru</h2>
+								<p>Silakan isi formulir berikut untuk mendaftar sebagai pasien baru. <br> Jika sudah pernah mendaftar, klik tombol
+										berikut:</p>
+								<a href="#pasien-lama" class="btn btn-success mt-3">Pendaftaran pasien lama</a>
+						</div><!-- End Section Title -->
 
-				<div class="container" data-aos="fade-up" data-aos-delay="100">
+						<div class="container" data-aos="fade-up" data-aos-delay="100">
 
-						<form action="{{ route('pasien-baru.store') }}" method="post">
-								@csrf
-								<div class="row">
-										<div class="col-md-4 form-group">
-												<input type="number" name="nik" class="form-control" id="nik" placeholder="NIK" required>
+								<form id="pasien-baru-form" action="{{ route('pasien-baru.store') }}" method="post">
+										@csrf
+										<div class="row">
+												<div class="col-md-4 form-group">
+														<label for="nik">NIK</label>
+														<input type="number" name="nik" class="form-control" id="nik" placeholder="NIK" required>
+														@error('nik')
+																<div class="invalid-feedback d-block">{{ $message }}</div>
+														@enderror
+												</div>
+												<div class="col-md-4 form-group">
+														<label for="nama">Nama</label>
+														<input type="text" name="nama" class="form-control" id="nama" placeholder="Nama Anda"
+																required>
+														@error('nama')
+																<div class="invalid-feedback d-block">{{ $message }}</div>
+														@enderror
+												</div>
+												<div class="col-md-4 form-group">
+														<label for="jenis_kelamin">Jenis Kelamin</label>
+														<select name="jenis_kelamin" id="jenis_kelamin" class="form-select" required>
+																<option value="">Jenis Kelamin</option>
+																<option value="p">Perempuan</option>
+																<option value="l">Laki-laki</option>
+														</select>
+														@error('jenis_kelamin')
+																<div class="invalid-feedback d-block">{{ $message }}</div>
+														@enderror
+												</div>
+										</div>
+										<div class="row">
+												<div class="col-md-4 form-group mt-3">
+														<label for="tanggal_lahir">Tanggal Lahir</label>
+														<input type="date" class="form-control" name="tanggal_lahir" id="tanggal_lahir" required>
+														@error('tanggal_lahir')
+																<div class="invalid-feedback d-block">{{ $message }}</div>
+														@enderror
+												</div>
+												<div class="col-md-4 form-group mt-3">
+														<label for="tanggal_kunjungan">Tanggal Kunjungan</label>
+														<input type="date" class="form-control" name="tanggal_kunjungan" id="tanggal_kunjungan" required>
+														@error('tanggal_kunjungan')
+																<div class="invalid-feedback d-block">{{ $message }}</div>
+														@enderror
+												</div>
+												<div class="col-md-4 form-group mt-3">
+														<label for="no_hp">Nomor HP</label>
+														<input type="text" name="no_hp" class="form-control" id="no_hp" placeholder="Nomor HP/WA"
+																required>
+														@error('no_hp')
+																<div class="invalid-feedback d-block">{{ $message }}</div>
+														@enderror
+												</div>
+										</div>
+										<div class="form-group mt-3">
+												<label for="alamat">Alamat</label>
+												<textarea class="form-control" name="alamat" id="alamat" rows="5" placeholder="Alamat saat ini" required></textarea>
+												@error('alamat')
+														<div class="invalid-feedback d-block">{{ $message }}</div>
+												@enderror
+										</div>
+										<div class="form-group mt-3">
+												<label for="keluhan">Keluhan</label>
+												<textarea class="form-control" name="keluhan" id="keluhan" rows="5" placeholder="Keluhan Anda" required></textarea>
+												@error('keluhan')
+														<div class="invalid-feedback d-block">{{ $message }}</div>
+												@enderror
 										</div>
 
-										<div class="col-md-4 form-group">
-												<input type="text" name="nama" class="form-control" id="nama" placeholder="Nama Anda"
-														required>
-										</div>
+										@if ($errors->any())
+												<div class="alert alert-danger mt-5" role="alert">
+														<ul>
+																@foreach ($errors->all() as $error)
+																		<li>{{ $error }}</li>
+																@endforeach
+														</ul>
+												</div>
+										@endif
+										@if (session('sent-message'))
+												<div class="alert alert-success mt-5" role="alert">
+														{{ session('sent-message') }}
+												</div>
+										@endif
+										@if (session('error-message'))
+												<div class="alert alert-danger mt-5" role="alert">
+														{{ session('error-message') }}
+												</div>
+										@endif
 
-										<div class="col-md-4 form-group">
-												<select name="jenis_kelamin" id="jenis_kelamin" class="form-select" required>
-														<option value="">Jenis Kelamin</option>
-														<option value="p">Perempuan</option>
-														<option value="l">Laki-laki</option>
-												</select>
+										<div class="mt-3">
+												<div class="text-center"><button type="submit" class="btn btn-primary">Daftar</button></div>
 										</div>
-								</div>
-								<div class="row">
-										<div class="col-md-4 form-group mt-3">
-												<label for="tanggal_lahir">Tanggal Lahir</label>
-												<input type="date" class="form-control" name="tanggal_lahir" id="tanggal_lahir"
-														placeholder="Tanggal lahir" required>
-										</div>
-										<div class="col-md-4 form-group mt-3">
-												<label for="tanggal_kunjungan">Tanggal Kunjungan</label>
-												<input type="date" class="form-control" name="tanggal_kunjungan" id="tanggal_kunjungan"
-														placeholder="Tanggal lahir" required>
-										</div>
+								</form>
 
-										<div class="col-md-4 form-group mt-3">
-												<label for="no_hp">Nomor HP</label>
-												<input type="text" name="no_hp" class="form-control" id="no_hp" placeholder="Nomor HP/WA"
-														required>
-										</div>
-								</div>
+						</div>
 
-								<div class="form-group mt-3">
-										<textarea class="form-control" name="alamat" rows="5" placeholder="Alamat saat ini" required></textarea>
-								</div>
+				</section>
+		@endif
 
-								@if ($errors->any())
-										<div class="error-message">
-												<ul>
-														@foreach ($errors->all() as $error)
-																<li>{{ $error }}</li>
-														@endforeach
-												</ul>
-										</div>
-								@endif
-								@if (session('sent-message'))
-										<div class="alert alert-success mt-5" role="alert">
-												{{ session('sent-message') }}
-										</div>
-								@endif
-								@if (session('error-message'))
-										<div class="alert alert-danger mt-5" role="alert">
-												{{ session('error-message') }}
-										</div>
-								@endif
-
-								<div class="mt-3">
-										<div class="text-center"><button type="submit" class="btn btn-primary">Daftar</button></div>
-								</div>
-						</form>
-
-				</div>
-
-		</section><!-- /Pendaftaran pasien baru -->
+		<!-- /Pendaftaran pasien baru -->
 
 
 
@@ -361,27 +394,35 @@
 						<form id="pasien-lama-form" action="{{ route('pasien-lama.ajax-store') }}" method="post">
 								@csrf
 								<div class="row">
-										<div class="col-md-4 form-group">
-												<label for="nik">Nik</label>
-												<input type="number" name="nik" class="form-control" id="nik" placeholder="NIK" required>
-												<div class="invalid-feedback" id="nik-error"></div>
-										</div>
-										<div class="col-md-4 form-group">
-												<label for="no_hp">Nomor Handphone</label>
-												<input type="text" name="no_hp" class="form-control" id="no_hp" placeholder="Nomor HP/WA"
-														required>
-												<div class="invalid-feedback" id="no_hp-error"></div>
-										</div>
-										<div class="col-md-4 form-group">
+										@if (!Auth::guard('pasien')->check())
+												<div class="col-md-4 form-group">
+														<label for="nik">Nik</label>
+														<input type="number" name="nik" class="form-control" id="nik" placeholder="NIK" required>
+														<div class="invalid-feedback" id="nik-error"></div>
+												</div>
+												<div class="col-md-4 form-group">
+														<label for="no_hp">Nomor Handphone</label>
+														<input type="text" name="no_hp" class="form-control" id="no_hp" placeholder="Nomor HP/WA"
+																required>
+														<div class="invalid-feedback" id="no_hp-error"></div>
+												</div>
+										@endif
+										<div class="col-md-4 col-12 form-group">
 												<label for="tanggal_kunjungan">Tanggal Kunjungan</label>
 												<input type="date" class="form-control" name="tanggal_kunjungan" id="tanggal_kunjungan" required>
 												<div class="invalid-feedback" id="tanggal_kunjungan-error"></div>
+										</div>
+										<div class="col-md-8 col-12 form-group">
+												<label for="keluhan">Keluhan</label>
+												<textarea class="form-control" name="keluhan" id="keluhan" required></textarea>
+												<div class="invalid-feedback" id="keluhan-error"></div>
 										</div>
 								</div>
 								<div class="mt-3">
 										<div class="text-center"><button type="submit" class="btn btn-primary">Daftar</button></div>
 								</div>
 						</form>
+
 				</div>
 		</section>
 		<!-- /Pendaftaran pasien lama -->
@@ -760,9 +801,12 @@
 						const successMessage = document.getElementById('success-message');
 						errorMessage.style.display = 'none';
 						successMessage.style.display = 'none';
-						document.getElementById('nik-error').innerHTML = '';
-						document.getElementById('no_hp-error').innerHTML = '';
+						@if (!Auth::guard('pasien')->check())
+								document.getElementById('nik-error').innerHTML = '';
+								document.getElementById('no_hp-error').innerHTML = '';
+						@endif
 						document.getElementById('tanggal_kunjungan-error').innerHTML = '';
+						document.getElementById('keluhan-error').innerHTML = '';
 						document.querySelectorAll('.form-control').forEach(input => input.classList.remove('is-invalid'));
 
 						// Kirim request dengan Axios
@@ -786,23 +830,100 @@
 														errorMessage.style.display = 'block';
 												}
 												// Tampilkan error validasi spesifik
-												if (errors.nik) {
-														document.getElementById('nik').classList.add('is-invalid');
-														document.getElementById('nik-error').innerHTML = errors.nik[0];
-												}
-												if (errors.no_hp) {
-														document.getElementById('no_hp').classList.add('is-invalid');
-														document.getElementById('no_hp-error').innerHTML = errors.no_hp[0];
-												}
+												@if (!Auth::guard('pasien')->check())
+														if (errors.nik) {
+																document.getElementById('nik').classList.add('is-invalid');
+																document.getElementById('nik-error').innerHTML = errors.nik[0];
+														}
+														if (errors.no_hp) {
+																document.getElementById('no_hp').classList.add('is-invalid');
+																document.getElementById('no_hp-error').innerHTML = errors.no_hp[0];
+														}
+												@endif
 												if (errors.tanggal_kunjungan) {
 														document.getElementById('tanggal_kunjungan').classList.add('is-invalid');
 														document.getElementById('tanggal_kunjungan-error').innerHTML = errors.tanggal_kunjungan[0];
+												}
+												if (errors.keluhan) {
+														document.getElementById('keluhan').classList.add('is-invalid');
+														document.getElementById('keluhan-error').innerHTML = errors.keluhan[0];
 												}
 										} else {
 												errorMessage.innerHTML = error.response?.data?.message || 'Terjadi kesalahan. Silakan coba lagi.';
 												errorMessage.style.display = 'block';
 										}
 								});
+				});
+		</script>
+		{{-- handler keluhan --}}
+		<script>
+				document.addEventListener('DOMContentLoaded', function() {
+						// Dapatkan semua link dengan kelas keluhan-link
+						const keluhanLinks = document.querySelectorAll('.keluhan-link');
+
+						keluhanLinks.forEach(link => {
+								link.addEventListener('click', function(e) {
+										e.preventDefault();
+										const keluhan = this.getAttribute('data-keluhan');
+										const isLoggedIn = @json(Auth::guard('pasien')->check());
+
+										// Tentukan target section berdasarkan status login
+										const targetSection = isLoggedIn ? '#pasien-lama' : '#pasien-baru';
+
+										// Isi field keluhan di form yang sesuai
+										if (isLoggedIn) {
+												const keluhanInput = document.querySelector('#pasien-lama-form #keluhan');
+												if (keluhanInput) {
+														keluhanInput.value = keluhan;
+												}
+										} else {
+												// Isi field keluhan di kedua form (pasien lama dan baru)
+												const keluhanInputs = [
+														document.querySelector('#pasien-lama-form #keluhan'),
+														document.querySelector('#pasien-baru-form #keluhan')
+												];
+												keluhanInputs.forEach(input => {
+														if (input) {
+																input.value = keluhan;
+														}
+												});
+										}
+
+										// Scroll ke section yang ditentukan
+										document.querySelector(targetSection).scrollIntoView({
+												behavior: 'smooth'
+										});
+								});
+						});
+
+						// Jika ada parameter keluhan di URL (opsional, untuk mendukung reload)
+						const urlParams = new URLSearchParams(window.location.search);
+						const keluhanFromUrl = urlParams.get('keluhan');
+						if (keluhanFromUrl) {
+								const isLoggedIn = @json(Auth::guard('pasien')->check());
+								if (isLoggedIn) {
+										const keluhanInput = document.querySelector('#pasien-lama-form #keluhan');
+										if (keluhanInput) {
+												keluhanInput.value = keluhanFromUrl;
+												document.querySelector('#pasien-lama').scrollIntoView({
+														behavior: 'smooth'
+												});
+										}
+								} else {
+										const keluhanInputs = [
+												document.querySelector('#pasien-lama-form #keluhan'),
+												document.querySelector('#pasien-baru-form #keluhan')
+										];
+										keluhanInputs.forEach(input => {
+												if (input) {
+														input.value = keluhanFromUrl;
+												}
+										});
+										document.querySelector('#pasien-baru').scrollIntoView({
+												behavior: 'smooth'
+										});
+								}
+						}
 				});
 		</script>
 @endpush

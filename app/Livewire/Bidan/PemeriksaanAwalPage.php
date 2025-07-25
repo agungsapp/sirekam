@@ -20,6 +20,10 @@ class PemeriksaanAwalPage extends Component
     {
         $this->idPendaftar = $id;
         $this->pendaftar = Pendaftaran::with('pasien')->findOrFail($id);
+        // dd($this->pendaftar->pasien);
+        if ($this->pendaftar->pasien->keluhan) {
+            $this->keluhan = $this->pendaftar->pasien->keluhan;
+        }
     }
 
     protected $messages = [
