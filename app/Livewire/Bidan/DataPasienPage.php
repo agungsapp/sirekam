@@ -85,7 +85,7 @@ class DataPasienPage extends Component
             Pendaftaran::create([
                 'id_pasien' => $pasien->id,
                 'tanggal_kunjungan' => Carbon::today(),
-                'status' => 'menunggu',
+                'status' => 'pending',
             ]);
 
             DB::commit();
@@ -96,7 +96,7 @@ class DataPasienPage extends Component
             // Muat ulang data pasien
             $this->pasiens = Pasien::with('pendaftaran')->orderBy('id', 'desc')->get();
 
-            session()->flash('success', 'Pasien berhasil ditambahkan dan terdaftar dengan status menunggu!');
+            session()->flash('success', 'Pasien berhasil ditambahkan dan terdaftar dengan status pending!');
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Gagal menambahkan pasien: ' . $e->getMessage());
